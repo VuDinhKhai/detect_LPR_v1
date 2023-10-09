@@ -12,10 +12,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import main as main_Window
 import sys
 from PyQt5.QtWidgets import  QFileDialog
-import mysql.connector
+import sql as aiptsql
 
-db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                             host='192.168.1.89', database='vehicle-identification')
+# db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
+#                              host='192.168.1.89', database='vehicle-identification')
 
 
 app = QtWidgets.QApplication(sys.argv)
@@ -24,8 +24,8 @@ ui = ''
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         global ui
-        self.db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                             host='192.168.1.89', database='vehicle-identification')
+        # self.db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
+        #                      host='192.168.1.89', database='vehicle-identification')
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(873, 763)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -271,12 +271,13 @@ class Ui_MainWindow(object):
         self.Button_mofile.setText(_translate("MainWindow", "CHỌN TỆP"))
         self.Button_thoat.setText(_translate("MainWindow", "Quay Lại"))
     def load_data_to_combobox(self):
-        self.db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                             host='192.168.1.89', database='vehicle-identification')
-        cursor = self.db.cursor()
-        cursor.execute("SELECT name FROM listsvehicle WHERE status = 1")
+        # self.db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
+        #                      host='192.168.1.89', database='vehicle-identification')
+        # cursor = self.db.cursor()
 
-        for row in cursor.fetchall():
+        # cursor.execute("SELECT name FROM listsvehicle WHERE status = 1")
+        results = aiptsql.get_full_name_From_listsvehicle_status_True()
+        for row in results:
             self.comboBox_list_link.addItem(row[0])
 
         # cursor.execute("SELECT rtsp FROM cameras")
@@ -285,36 +286,38 @@ class Ui_MainWindow(object):
         # for result in results:
         #     self.comboBox_child.addItem(result[0])
 
-        cursor.close()
+        # cursor.close()
 
     
 
     def select_combobox(self):
         selected_item = self.comboBox_list_link.currentText()
         self.comboBox_child.clear()
-        db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                             host='192.168.1.89', database='vehicle-identification')
-        cursor = db.cursor(buffered=True)
-        ID_list_ = None
-        sql2 = "SELECT id FROM listsvehicle WHERE name = %s"
-        cursor.execute(sql2, (selected_item,))
-        ID_list_ = cursor.fetchall()
-        for ID_list in ID_list_:
-            ID_list = ID_list[0]
+        results = aiptsql.get_full_rtsp_From_name_listvehicle(selected_item)
+        if len(results):
+            for result in results:
+                self.comboBox_child.addItem(result)
+        # db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
+        #                      host='192.168.1.89', database='vehicle-identification')
+        # cursor = db.cursor(buffered=True)
+        # ID_list_ = None
+        # sql2 = "SELECT id FROM listsvehicle WHERE name = %s"
+        # cursor.execute(sql2, (selected_item,))
+        # ID_list_ = cursor.fetchall()
+        # for ID_list in ID_list_:
+        #     ID_list = ID_list[0]
 
-            ID_camera = None
-            sql5 = "SELECT camera_id FROM cameradetail WHERE list_vehicle_id = %s"
-            cursor.execute(sql5, (ID_list,))
-            ID_camera_ = cursor.fetchall()
-            for ID_camera in ID_camera_:
-                ID_camera = ID_camera[0]
-                cursor = db.cursor(buffered=True)
-                sql3 = "SELECT rtsp FROM cameras WHERE id = %s"
-                cursor.execute(sql3, (ID_camera,))
-                results = cursor.fetchall()
+        #     ID_camera = None
+        #     sql5 = "SELECT camera_id FROM cameradetail WHERE list_vehicle_id = %s"
+        #     cursor.execute(sql5, (ID_list,))
+        #     ID_camera_ = cursor.fetchall()
+        #     for ID_camera in ID_camera_:
+        #         ID_camera = ID_camera[0]
+        #         cursor = db.cursor(buffered=True)
+        #         sql3 = "SELECT rtsp FROM cameras WHERE id = %s"
+        #         cursor.execute(sql3, (ID_camera,))
+        #         results = cursor.fetchall()
 
-                for result in results:
-                    self.comboBox_child.addItem(result[0])
 
 
         self.label_cha.setText(f"{selected_item}")
@@ -328,11 +331,7 @@ class Ui_MainWindow(object):
         ui = main_Window.main()
         MainWindow.close()
     def luu_vitri(self):
-        db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                             host='192.168.1.89', database='vehicle-identification')
-        cursor = db.cursor()
         value = self.text_edit_RTSP.toPlainText()
-        status = 1
         if len(value) !=0:
             found = True
             for index in range(self.comboBox_list_link.count()):
@@ -341,33 +340,13 @@ class Ui_MainWindow(object):
                     found = False
                     break
             if found:
-                query = "SELECT * FROM listsvehicle WHERE name = %s"
-                cursor.execute(query, (value,))
-                existing_camera = cursor.fetchone()
-
-                if existing_camera is None:
-                    # Nếu rtsp chưa tồn tại, thêm một dòng mới vào bảng
-                    insert_query = "INSERT INTO listsvehicle (name, status) VALUES (%s, %s)"
-                    cursor.execute(insert_query, (value, status))
-                    db.commit()
-                    # print("Thêm mới thành công.")
-                else:
-                    # Nếu rtsp đã tồn tại, cập nhật trạng thái status từ 0 thành 1
-                    update_query = "UPDATE listsvehicle SET status = 1 WHERE name = %s"
-                    cursor.execute(update_query, (value,))
-                    db.commit()
-                    # print("Cập nhật thành công.")
-
+                aiptsql.add_list_vehicle(value)
                 self.comboBox_list_link.addItem(value)
                 self.label_cha.setText("Đã thêm : " + value)
         
     def luu_RTSP(self):
-        db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                             host='192.168.1.89', database='vehicle-identification')
-        cursor = db.cursor()
         value = self.text_edit_RTSP.toPlainText()
         selected_item = self.comboBox_list_link.currentText()
-        status = 1
         if len(value) !=0:
             found = True
             for index in range(self.comboBox_child.count()):
@@ -378,74 +357,17 @@ class Ui_MainWindow(object):
             if found:            
                 self.comboBox_child.addItem(value)
                 self.text_edit_RTSP.setText(value)
-                query = "SELECT * FROM cameras WHERE rtsp = %s"
-                cursor.execute(query, (value,))
-                existing_camera = cursor.fetchone()
-
-                if existing_camera is None:
-                    # Nếu rtsp chưa tồn tại, thêm một dòng mới vào bảng
-                    insert_query = "INSERT INTO cameras (name,rtsp, status) VALUES (%s, %s,%s)"
-                    cursor.execute(insert_query, (selected_item,value, status))
-                    db.commit()
-                else:
-                    # Nếu rtsp đã tồn tại, cập nhật trạng thái status từ 0 thành 1
-                    update_query = "UPDATE cameras SET status = 1 WHERE rtsp = %s"
-                    cursor.execute(update_query, (value,))
-                    db.commit()
-
-
-                # sql = "INSERT INTO cameras (name,rtsp,status) VALUES (%s,%s,%s)"
-                # values = (selected_item,value,status,)
-                # cursor.execute(sql, values)
-                # self.db.commit()
-      
-                sql1 = "SELECT id FROM cameras WHERE rtsp = %s"
-                cursor.execute(sql1, (value,))
-                # Lấy kết quả trả về (ID)
-                ID_rtsp = cursor.fetchone()
-                sql2 = "SELECT id FROM listsvehicle WHERE name = %s"
-                selected_item = self.comboBox_list_link.currentText()
-                cursor.execute(sql2, (selected_item,))
-                # Lấy kết quả trả về (ID)
-                ID_list = cursor.fetchone()
-                if ID_list and ID_rtsp:
-                    list_vehicle_id = ID_list[0]
-                    camera_id = ID_rtsp[0]
-
-                    sql_insert_camera_detail = "INSERT INTO cameradetail (camera_id, list_vehicle_id) VALUES (%s, %s)"
-                    id_detail = (camera_id, list_vehicle_id,)
-                    cursor.execute(sql_insert_camera_detail,id_detail)
-                    # Lưu thay đổi vào cơ sở dữ liệu
-                    db.commit()
+                aiptsql.add_rtsp(selected_item,value)
+                aiptsql.add_camerasdetail(selected_item,value)
 
 
     def button_xoa_vitri(self):
-        db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                             host='192.168.1.89', database='vehicle-identification')
-        cursor = db.cursor()
         selected_item = self.comboBox_list_link.currentText()
         index = self.comboBox_list_link.findText(selected_item)
         if index != -1:
             self.comboBox_list_link.removeItem(index)
 
-        update_query = "UPDATE listsvehicle SET status = 0 WHERE name = %s"
-        cursor.execute(update_query, (selected_item,))
-        db.commit()
-        ID_list = None
-        sql5 = "SELECT id FROM listsvehicle WHERE name = %s"
-        cursor.execute(sql5, (selected_item,))
-        ID_list = cursor.fetchone()
-        if ID_list is not None:
-            ID_list = ID_list[0]
-            sql6 = "DELETE FROM listvehicledetail WHERE list_vehicle_id = %s"
-            values = (ID_list,)
-            cursor.execute(sql6, values)
-            db.commit()
-            sql6 = "DELETE FROM cameradetail WHERE list_vehicle_id = %s"
-            values = (ID_list,)
-            cursor.execute(sql6, values)
-            db.commit()
-
+        aiptsql.remove_list(selected_item)
         # ID_list = None
         # sql2 = "SELECT id FROM listsvehicle WHERE name = %s"
         # cursor.execute(sql2, (selected_item,))
@@ -498,29 +420,12 @@ class Ui_MainWindow(object):
 
 
     def button_xoa_RTSP(self):
-        db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                             host='192.168.1.89', database='vehicle-identification')
-        cursor = db.cursor(buffered=True)
         selected_item = self.comboBox_child.currentText()
         index = self.comboBox_child.findText(selected_item)
         if index != -1:
             self.comboBox_child.removeItem(index)
 
-        sql2 = "SELECT id FROM cameras WHERE rtsp = %s"
-        cursor.execute(sql2, (selected_item,))
-        # Lấy kết quả trả về (ID)
-        ID_rtsp = cursor.fetchone()
-        ID_rtsp = ID_rtsp[0]
-        cursor = db.cursor(buffered=True)
-        sql = "DELETE FROM cameradetail WHERE camera_id = %s"
-        values = (ID_rtsp,)
-        cursor.execute(sql, values)
-        db.commit()
-        cursor = db.cursor(buffered=True)
-
-        update_query = "UPDATE cameras SET status = 0 WHERE rtsp = %s"
-        cursor.execute(update_query, (selected_item,))
-        db.commit()
+        aiptsql.remove_rtsp(selected_item)
         # sql = "DELETE FROM cameras WHERE rtsp = %s"
         # values = (selected_item,)
         # cursor.execute(sql, values)
@@ -528,18 +433,20 @@ class Ui_MainWindow(object):
 
 
     def openFile(self):
-        options = QFileDialog.Options()
-        file_path, _ = QFileDialog.getOpenFileName(None, "Mở Tệp", "", "Tất cả các Tệp (*);;Tệp Văn Bản (*.txt);;Tệp Hình Ảnh (*.jpg *.png)", options=options)
+        file_path = aiptsql.openFile()
 
-        if file_path:
-            # Xử lý tệp tin ở đây, ví dụ: in đường dẫn ra console
-            print("Đường dẫn tệp đã chọn:", file_path)
-            self.text_edit_RTSP.setText(file_path)    
+        # options = QFileDialog.Options()
+        # file_path, _ = QFileDialog.getOpenFileName(None, "Mở Tệp", "", "Tất cả các Tệp (*);;Tệp Văn Bản (*.txt);;Tệp Hình Ảnh (*.jpg *.png)", options=options)
 
-    def closeEvent(self, event):
-        # Lưu dữ liệu khi thoát chương trình
-        self.save_data_to_mysql(0)
-        self.db.close()    
+        # if file_path:
+        #     # Xử lý tệp tin ở đây, ví dụ: in đường dẫn ra console
+        print("Đường dẫn tệp đã chọn:", file_path)
+        self.text_edit_RTSP.setText(file_path)    
+
+    # def closeEvent(self, event):
+    #     # Lưu dữ liệu khi thoát chương trình
+    #     self.save_data_to_mysql(0)
+    #     self.db.close()    
 def main():
     global ui
     ui = Ui_MainWindow()

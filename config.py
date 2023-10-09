@@ -12,3 +12,5 @@ current_directory = os.getcwd()
 
 weights_detect=current_directory + os.environ.get('detect_LP')
 weights_reco = current_directory + os.environ.get('reco_LP')
+
+image_directory = 'image_mysql'

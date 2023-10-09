@@ -11,36 +11,20 @@ import formlist as formlist
 import report as report_window
 import ADD as ADD
 import form_reco as form_reco
-# import mysql.connector
-import datetime
-import pytz
 import os
-import uuid
-from datetime import datetime, timedelta
 from config import weights_detect,weights_reco
-from sql import dbsql,cursor
-# db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-#                              host='192.168.1.89', database='vehicle-identification')
-# db= dbsql
-cursor = cursor
+import sql as aiptsql
 groupID = 1
 vehicle_company_id = 1
 current_directory = os.getcwd()
-
-# weights_detect=current_directory + r'\model\LP_detector_nano_61.pt'
-# weights_reco = current_directory + r'\model\best_188.pt'
 app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
 ui = ''
 detect= False
 
 class Ui_MainWindow(object):
-    global cursor
     def setupUi(self, MainWindow):
-        global ui,cursor
-        # self.db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-        #                      host='192.168.1.89', database='vehicle-identification')
-        
+        global ui
         self.thread = {}
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(968, 657)
@@ -255,23 +239,11 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
     def load_data_to_combobox_list_and_rtsp(self):
-        # self.db = mysql.connector.connect(user='root', password='12345678',
-        #                      host='127.0.0.1', database='aipt')
-        # self.db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-        #                      host='192.168.1.89', database='vehicle-identification')
-        
-        # cursor = db.cursor()
-        cursor.execute("SELECT name FROM listsvehicle WHERE status = 1")
-        results = cursor.fetchall()
-        
-        # Xóa dữ liệu cũ từ QComboBox
-        # self.comboBox_listxe.clear()
-
-        # Thêm dữ liệu từ cơ sở dữ liệu vào QComboBox
-        for result in results:
-            self.combobox_list.addItem(result[0])
-
-        cursor.close()
+        results = aiptsql.get_full_name_From_listsvehicle_status_True()
+        if results is not None:
+            for result in results:
+                result = result[0]
+                self.combobox_list.addItem(result)
     
     def fullscreen_viewcam1(self, event):
         if not self.is_fullscreen:
@@ -499,53 +471,21 @@ class Ui_MainWindow(object):
 
     def select_combobox(self):
         selected_item = self.combobox_list.currentText()
-        # self.label_2.setText(f"Bạn đã chọn: {selected_item}")
-        print("Bạn đã chọn: " + selected_item)
         self.comboBox.clear()
-        # db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-        #                      host='192.168.1.89', database='vehicle-identification')
-        # cursor = db.cursor(buffered=True)
-        ID_list_ = None
-        sql2 = "SELECT id FROM listsvehicle WHERE name = %s"
-        cursor.execute(sql2, (selected_item,))
-        ID_list_ = cursor.fetchall()
-        for ID_list in ID_list_:
-            ID_list = ID_list[0]
-            
-            ID_camera = None
-            sql5 = "SELECT camera_id FROM cameradetail WHERE list_vehicle_id = %s"
-            cursor.execute(sql5, (ID_list,))
-            ID_camera_ = cursor.fetchall()
-            for ID_camera in ID_camera_:
-                ID_camera = ID_camera[0]
-                # cursor = db.cursor(buffered=True)
-                sql3 = "SELECT rtsp FROM cameras WHERE id = %s"
-                cursor.execute(sql3, (ID_camera,))
-                results = cursor.fetchall()
-
-                for result in results:
-                    self.comboBox.addItem(result[0])
-        
-        # Xóa dữ liệu cũ từ QComboBox
-        # self.comboBox_listxe.clear()
-
-        # Thêm dữ liệu từ cơ sở dữ liệu vào QComboBox
-        # for result in results:
-        #     self.comboBox.addItem(result[0])
+        results = aiptsql.get_full_rtsp_From_name_listvehicle(selected_item)
+        if len(results):
+            for result in results:
+                self.comboBox.addItem(result)
 
     def select_combobox_RTSP(self):
         selected_item = self.comboBox.currentText()
-        # self.label_2.setText(f"Bạn đã chọn: {selected_item}")
-        print("Bạn đã chọn: " + selected_item)
         return selected_item
     def button_f(self):
-        # self.label_2.setText("nhan button file")
         print("nhan button file")
         global ui
         ui = formlist.main()
         self.closeEvent()
         MainWindow.close()
-
 
     def button_camera(self):
         # self.label_2.setText("nhan button camera")
@@ -667,7 +607,7 @@ value_feature = 1
 image_directory = 'image_mysql'
 
 class capture_video(QThread):
-    global detect,ui,value_LP1,value_feature,image_directory,cursor,dbsql
+    global detect,ui,value_LP1,value_feature,image_directory
     signal = pyqtSignal(np.ndarray)   # signal suất đi kiểu np.ndarray , nếu suất đi số là int , chữ là string ,
 
 
@@ -696,146 +636,8 @@ class capture_video(QThread):
                             frame,value_LP1 = main_image.detect_APP(weights_detect,weights_reco,frame)
                             print("Detect finished : " + str(value_LP1))
                             if value_LP1 != None:
-                                # db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                                # host='192.168.1.89', database='vehicle-identification')
-                                # cursor = db.cursor(buffered=True)
-                                id_LP = None
-                                cursor.execute("SELECT id FROM vehicles WHERE license_plate = %s", (value_LP1,))
-                                id_LP = cursor.fetchone()
-                                if id_LP is not None:
-                                    id_LP = id_LP[0]
-                                # cursor = db.cursor(buffered=True)
-                                    vehicle_id = 0
-                                    time_from_database = datetime.now()
-                                    # Truy vấn SQL để lấy dòng mới nhất từ bảng
-                                    query = "SELECT vehicle_id, time FROM records ORDER BY time DESC LIMIT 1"
-                                    cursor.execute(query)
-                                    row = cursor.fetchone()
-                                    if row:
-                                        # Trích xuất vehicle_id và time từ dòng kết quả
-                                        vehicle_id, time_from_database = row
-
-                                    if id_LP != vehicle_id:
-                                        # id_LP = id_LP[0]
-                                        rtsp = "0"
-                                        id_rtsp = 0
-                                        cursor.execute("SELECT id FROM cameras WHERE rtsp = %s", (rtsp,))
-                                        id_rt = cursor.fetchone()
-                                        id_rtsp = id_rt[0]
-                                        # id_list_vehicle = 0
-                                        # cursor.execute("SELECT list_vehicle_id FROM cameradetail WHERE camera_id = %s", (id_rtsp,))
-                                        # id_list_ = cursor.fetchone()
-                                        # id_list_vehicle = id_list_[0]
-
-                                        name_list_vehicle = Ui_MainWindow.comboBox_list_current(ui)
-                                        id_list_vehicle = 0
-                                        cursor.execute("SELECT id FROM listsvehicle WHERE name = %s", (name_list_vehicle,))
-                                        id_list_ = cursor.fetchone()
-                                        id_list_vehicle = id_list_[0]
-                                        to = time.time()
-                                        dt = datetime.fromtimestamp(to)
-                                        # Tạo một đối tượng timezone cho múi giờ MySQL (VD: múi giờ UTC)
-                                        mysql_timezone = pytz.timezone('Asia/Ho_Chi_Minh')
-
-                                        # Chuyển đổi đối tượng datetime thành múi giờ MySQL
-                                        dt_mysql = dt.astimezone(mysql_timezone)
-
-                                        # Định dạng thời gian theo chuẩn MySQL (YYYY-MM-DD HH:MM:SS)
-                                        formatted_time = dt_mysql.strftime("%Y-%m-%d %H:%M:%S")
-                                        id_feature = None
-                                        cursor.execute("SELECT id FROM features WHERE name = %s", (value_feature,))
-                                        id_feature_ = cursor.fetchone()
-                                        id_feature = id_feature_[0]
-                                        image_filename = f"{uuid.uuid4()}-{int(time.time())}.jpg"
-                                        path = os.path.join(image_directory, image_filename)
-                                        if not os.path.exists(image_directory):
-                                            os.makedirs(image_directory)    
-                                        cv2.imwrite(path, frame)
-                                        # sql = "INSERT INTO records (camera_id,list_vehicle_id,vehicle_id,feature_id,time,path) VALUES (%s,%s,%s,%s,%s,%s)"
-                                        insert_query = """
-                                        INSERT INTO records (camera_id, list_vehicle_id, vehicle_id, time, path)
-                                        VALUES (%s, %s, %s, %s, %s)
-                                        """
-                                        values = (id_rtsp, id_list_vehicle, id_LP, formatted_time, path)
-                                        # values = (id_rtsp,id_list_vehicle,id_LP,id_feature,formatted_time,path)
-                                        cursor.execute(insert_query, values)
-                                        dbsql.commit()
-
-                                        record_id = None
-                                        cursor.execute("SELECT id FROM records WHERE camera_id = %s AND list_vehicle_id = %s AND vehicle_id = %s AND path = %s", (id_rtsp, id_list_vehicle, id_LP, path))
-                                        record_id_ = cursor.fetchone()
-                                        record_id = record_id_[0]
-                                        
-                                        insert_query_reportdetail = """
-                                        INSERT INTO recorddetail (feature_id,record_id)
-                                        VALUES (%s, %s)
-                                        """
-                                        values = (id_feature, record_id)
-                                        # values = (id_rtsp,id_list_vehicle,id_LP,id_feature,formatted_time,path)
-                                        cursor.execute(insert_query_reportdetail, values)
-                                        dbsql.commit()
-
-                                    else:
-                                        current_time = datetime.now()
-                                        time_difference = current_time - time_from_database
-                                        if time_difference > timedelta(seconds=60):
-                                            rtsp = "0"
-                                            id_rtsp = 0
-                                            cursor.execute("SELECT id FROM cameras WHERE rtsp = %s", (rtsp,))
-                                            id_rt = cursor.fetchone()
-                                            id_rtsp = id_rt[0]
-                                            # id_list_vehicle = 0
-                                            # cursor.execute("SELECT list_vehicle_id FROM cameradetail WHERE camera_id = %s", (id_rtsp,))
-                                            # id_list_ = cursor.fetchone()
-                                            # id_list_vehicle = id_list_[0]
-
-                                            name_list_vehicle = Ui_MainWindow.comboBox_list_current(ui)
-                                            id_list_vehicle = 0
-                                            cursor.execute("SELECT id FROM listsvehicle WHERE name = %s", (name_list_vehicle,))
-                                            id_list_ = cursor.fetchone()
-                                            id_list_vehicle = id_list_[0]
-                                            to = time.time()
-                                            dt = datetime.fromtimestamp(to)
-                                            # Tạo một đối tượng timezone cho múi giờ MySQL (VD: múi giờ UTC)
-                                            mysql_timezone = pytz.timezone('Asia/Ho_Chi_Minh')
-
-                                            # Chuyển đổi đối tượng datetime thành múi giờ MySQL
-                                            dt_mysql = dt.astimezone(mysql_timezone)
-
-                                            # Định dạng thời gian theo chuẩn MySQL (YYYY-MM-DD HH:MM:SS)
-                                            formatted_time = dt_mysql.strftime("%Y-%m-%d %H:%M:%S")
-                                            id_feature = None
-                                            cursor.execute("SELECT id FROM features WHERE name = %s", (value_feature,))
-                                            id_feature_ = cursor.fetchone()
-                                            id_feature = id_feature_[0]
-                                            image_filename = f"{uuid.uuid4()}-{int(time.time())}.jpg"
-                                            path = os.path.join(image_directory, image_filename)
-                                            if not os.path.exists(image_directory):
-                                                os.makedirs(image_directory)    
-                                            cv2.imwrite(path, frame)
-                                            # sql = "INSERT INTO records (camera_id,list_vehicle_id,vehicle_id,feature_id,time,path) VALUES (%s,%s,%s,%s,%s,%s)"
-                                            insert_query = """
-                                            INSERT INTO records (camera_id, list_vehicle_id, vehicle_id, time, path)
-                                            VALUES (%s, %s, %s, %s, %s)
-                                            """
-                                            values = (id_rtsp, id_list_vehicle, id_LP, formatted_time, path,)
-                                            # values = (id_rtsp,id_list_vehicle,id_LP,id_feature,formatted_time,path)
-                                            cursor.execute(insert_query, values)
-                                            dbsql.commit()
-                                            record_id = None
-                                            cursor.execute("SELECT id FROM records WHERE camera_id = %s AND list_vehicle_id = %s AND vehicle_id = %s AND path = %s", (id_rtsp, id_list_vehicle, id_LP, path))
-                                            record_id_ = cursor.fetchone()
-                                            record_id = record_id_[0]
-                                            
-                                            insert_query_reportdetail = """
-                                            INSERT INTO recorddetail (feature_id,record_id)
-                                            VALUES (%s, %s)
-                                            """
-                                            values = (id_feature, record_id)
-                                            # values = (id_rtsp,id_list_vehicle,id_LP,id_feature,formatted_time,path)
-                                            cursor.execute(insert_query_reportdetail, values)
-                                            dbsql.commit()
-
+                                name_list_vehicle = Ui_MainWindow.comboBox_list_current(ui)
+                                aiptsql.add_LP_to_report(frame, value_LP1 ,name_list_vehicle,rtsp,value_feature)
                         self.signal.emit(frame)     # suất tín hiệu gửi đi dạng frame, dùng emit để xuất đi
                     else:
                         break

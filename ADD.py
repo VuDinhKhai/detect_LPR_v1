@@ -11,15 +11,12 @@ import atexit
 from PyQt5 import QtCore, QtGui, QtWidgets
 import main as main_Window
 import sys
-import mysql.connector
 from PyQt5.QtWidgets import QApplication, QComboBox, QMainWindow
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtCore import Qt
-# db = mysql.connector.connect(user='root', password='12345678',
-#                              host='127.0.0.1', database='aipt')
-db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                             host='192.168.1.89', database='vehicle-identification')
+import sql as aiptsql
+
 app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
 ui = ''
@@ -118,8 +115,6 @@ class CheckableComboBox(QComboBox):
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         global ui
-        self.db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                             host='192.168.1.89', database='vehicle-identification')
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 600)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -423,9 +418,6 @@ class Ui_MainWindow(object):
         self.Button_luu.setText(_translate("MainWindow", "LƯU"))
 
     def button_xoalistxe(self):
-        db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                             host='192.168.1.89', database='vehicle-identification')
-        cursor = db.cursor(buffered=True)
         index = self.comboBox_listxe.check_items()
         # index = self.comboBox_listxe.findText(selected_item)
         cont = 0
@@ -435,24 +427,7 @@ class Ui_MainWindow(object):
                 item_text = self.comboBox_listxe.itemText(i-cont)
                 self.comboBox_listxe.removeItem(i - cont)
                 print("item_text = ", item_text)
-                update_query = "UPDATE listsvehicle SET status = 0 WHERE name = %s"
-                cursor.execute(update_query, (item_text,))
-                db.commit()
-                ID_list = None
-                sql5 = "SELECT id FROM listsvehicle WHERE name = %s"
-                cursor.execute(sql5, (item_text,))
-                ID_list = cursor.fetchone()
-                if ID_list is not None:
-                    ID_list = ID_list[0]
-                    sql6 = "DELETE FROM listvehicledetail WHERE list_vehicle_id = %s"
-                    values = (ID_list,)
-                    cursor.execute(sql6, values)
-                    db.commit()
-                    sql6 = "DELETE FROM cameradetail WHERE list_vehicle_id = %s"
-                    values = (ID_list,)
-                    cursor.execute(sql6, values)
-                    db.commit()
-
+                aiptsql.remove_list(item_text)
                 cont = cont + 1
                 # ID_list = None
                 # sql2 = "SELECT id FROM listsvehicle WHERE name = %s"
@@ -511,29 +486,14 @@ class Ui_MainWindow(object):
 
 
     def button_xoa_bienso(self):
-        db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                             host='192.168.1.89', database='vehicle-identification')
-        cursor = db.cursor()
         selected_item = self.comboBox_list_bienso.currentText()
         index = self.comboBox_list_bienso.findText(selected_item)
         if index != -1:
             self.comboBox_list_bienso.removeItem(index)
         self.label_hienbienso.setText("         Đã xóa biển số  : " + selected_item)
         
-        ID_vehicle_ = None
-        sql2 = "SELECT id FROM vehicles WHERE license_plate = %s"
-        cursor.execute(sql2, (selected_item,))
-        ID_vehicle_ = cursor.fetchall()
-        for ID_vehicle in ID_vehicle_:
-            ID_vehicle = ID_vehicle[0]
-            sql4 = "DELETE FROM listvehicledetail WHERE  vehicle_id = %s"
-            values = (ID_vehicle,)
-            cursor.execute(sql4, values)
-            db.commit()
-
-            update_query = "UPDATE vehicles SET status = 0 WHERE id = %s"
-            cursor.execute(update_query, (ID_vehicle,))
-            db.commit()
+        aiptsql.remove_LP(selected_item)
+        
             # sql1 = "DELETE FROM records WHERE vehicle_id = %s"
             # values = (ID_vehicle,)
             # cursor.execute(sql1, values)
@@ -577,30 +537,16 @@ class Ui_MainWindow(object):
 
 
     def load_data_to_combobox_listxe(self):
-        self.db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                             host='192.168.1.89', database='vehicle-identification')
-        cursor = self.db.cursor()
-        cursor.execute("SELECT name FROM listsvehicle WHERE status = 1")
-        results = cursor.fetchall()
+        results = aiptsql.get_full_name_From_listsvehicle_status_True()
+        if results is not None:
+            for result in results:
+                self.comboBox_listxe.addItem(result[0])
         
-        # Xóa dữ liệu cũ từ QComboBox
-        # self.comboBox_listxe.clear()
+        results = aiptsql.get_full_LP_from_vehicle_status_true()
+        if results is not None:
+            for result in results:
+                self.comboBox_list_bienso.addItem(result[0])
 
-        # Thêm dữ liệu từ cơ sở dữ liệu vào QComboBox
-        for result in results:
-            self.comboBox_listxe.addItem(result[0])
-        
-        cursor.execute("SELECT license_plate FROM vehicles WHERE status = 1")
-        results = cursor.fetchall()
-        
-        # Xóa dữ liệu cũ từ QComboBox
-        # self.comboBox_listxe.clear()
-
-        # Thêm dữ liệu từ cơ sở dữ liệu vào QComboBox
-        for result in results:
-            self.comboBox_list_bienso.addItem(result[0])
-
-        cursor.close()
     def select_combobox_listbienso(self):
         selected_item = self.comboBox_list_bienso.currentText()
         self.label_hienbienso.setText(f"{selected_item}")
@@ -681,13 +627,8 @@ class Ui_MainWindow(object):
         
 
     def them_bienso(self):
-        db = mysql.connector.connect(user='vehicle-identification', password='aipt2023',
-                             host='192.168.1.89', database='vehicle-identification')
-        cursor = db.cursor(buffered=True)
         value = self.Edit_bienso.toPlainText()
         index1 = self.comboBox_listxe.check_items()
-        # print(len(index1))
-        status = 1
         if len(value) !=0:
             found = True
             for index in range(self.comboBox_list_bienso.count()):
@@ -699,43 +640,12 @@ class Ui_MainWindow(object):
             if found and len(index1) > 0:
                 self.comboBox_list_bienso.addItem(value)
                 self.label_hienbienso.setText("         Đã thêm biển số : " + value)
-                query = "SELECT * FROM vehicles WHERE license_plate = %s"
-                cursor.execute(query, (value,))
-                existing_camera = cursor.fetchone()
-                if existing_camera is None:
-                    insert_query = "INSERT INTO vehicles (license_plate,vehicle_campany_id,status) VALUES (%s,%s,%s)"
-                    cursor.execute(insert_query, (value,main_Window.vehicle_company_id,status,))
-                    db.commit()
-                else:
-                    update_query = "UPDATE vehicles SET status = 1 WHERE license_plate = %s"
-                    cursor.execute(update_query, (value,))
-                    db.commit()
+                aiptsql.add_LP(value)
                 # index3 = self.comboBox_listxe.check_items()
                 for i in index1:
                     text_label = self.comboBox_listxe.model().item(i, 0).text()
 
-                    sql2 = "SELECT id FROM vehicles WHERE license_plate = %s"
-                    value = self.Edit_bienso.toPlainText()
-                    cursor.execute(sql2, (value,))
-                    # Lấy kết quả trả về (ID)
-                    ID_bienso = cursor.fetchone()
-
-
-                    sql2 = "SELECT id FROM listsvehicle WHERE name = %s"
-                    # selected_item = self.comboBox_listxe.currentText()
-                    print("label = %s" % text_label)
-                    cursor.execute(sql2, (text_label,))
-                    # Lấy kết quả trả về (ID)
-                    ID_list = cursor.fetchone()
-                    if ID_list and ID_bienso:
-                        list_vehicle_id = ID_list[0]
-                        bienso_id = ID_bienso[0]
-
-                        sql_insert_bienso_detail = "INSERT INTO listvehicledetail (list_vehicle_id, vehicle_id) VALUES (%s, %s)"
-                        id_detail = (list_vehicle_id,bienso_id,)
-                        cursor.execute(sql_insert_bienso_detail,id_detail)
-                        # Lưu thay đổi vào cơ sở dữ liệu
-                        db.commit()
+                    aiptsql.add_vehicledetail(value, text_label)
 
 
     # def save_data_on_exit(self):
