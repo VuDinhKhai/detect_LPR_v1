@@ -1,0 +1,66 @@
+2023-10-31 09:08:47,756 - ERROR - __name__ == __main__ : Loi chuong trinh: [WinError 267] The directory name is invalid: 'E:\\AIPT\\detect_LPR\\myapp.log'
+2023-10-31 09:09:06,005 - ERROR - detect : Loi khi phat hien doi tuong: 1265 (01000): Data truncated for column 'time' at row 1
+2023-10-31 09:09:07,096 - ERROR - detect : Loi khi phat hien doi tuong: 1265 (01000): Data truncated for column 'time' at row 1
+2023-10-31 09:09:08,243 - ERROR - detect : Loi khi phat hien doi tuong: 1265 (01000): Data truncated for column 'time' at row 1
+2023-10-31 09:09:09,362 - ERROR - detect : Loi khi phat hien doi tuong: 1265 (01000): Data truncated for column 'time' at row 1
+2023-10-31 09:09:10,500 - ERROR - detect : Loi khi phat hien doi tuong: 1265 (01000): Data truncated for column 'time' at row 1
+2023-10-31 09:09:11,587 - ERROR - detect : Loi khi phat hien doi tuong: 1265 (01000): Data truncated for column 'time' at row 1
+2023-10-31 09:09:12,605 - ERROR - detect : Loi khi phat hien doi tuong: 1265 (01000): Data truncated for column 'time' at row 1
+2023-10-31 09:09:13,700 - ERROR - detect : Loi khi phat hien doi tuong: 1265 (01000): Data truncated for column 'time' at row 1
+2023-10-31 09:14:34,820 - ERROR - __name__ == __main__ : Loi chuong trinh: [WinError 267] The directory name is invalid: 'E:\\AIPT\\detect_LPR\\myapp.log'
+2023-10-31 09:14:59,715 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:00,801 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:01,899 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:02,958 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:04,023 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:05,110 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:06,199 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:07,308 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:08,415 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:09,558 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:10,681 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:11,807 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:12,886 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:14,167 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:15,236 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:16,343 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:17,382 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:18,450 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:19,665 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:20,878 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:21,981 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:23,028 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:24,082 - ERROR - detect : Loi khi phat hien doi tuong: unsupported operand type(s) for -: 'datetime.datetime' and 'int'
+2023-10-31 09:15:30,206 - ERROR - detect : Loi khi phat hien doi tuong: cannot schedule new futures after shutdown
+2023-10-31 09:15:30,399 - ERROR - detect : Loi khi phat hien doi tuong: cannot schedule new futures after shutdown
+2023-10-31 09:15:30,430 - ERROR - detect : Loi khi phat hien doi tuong: cannot schedule new futures after shutdown
+2023-10-31 09:23:14,953 - ERROR - __name__ == __main__ : Loi chuong trinh: [WinError 267] The directory name is invalid: 'E:\\AIPT\\detect_LPR\\myapp.log'
+2023-10-31 09:44:00,162 - DEBUG - matplotlib data path: C:\Users\admin\AppData\Local\Programs\Python\Python311\Lib\site-packages\matplotlib\mpl-data
+2023-10-31 09:44:00,165 - DEBUG - CONFIGDIR=C:\Users\admin\.matplotlib
+2023-10-31 09:44:00,166 - DEBUG - interactive is False
+2023-10-31 09:44:00,166 - DEBUG - platform is win32
+2023-10-31 09:44:00,216 - DEBUG - CACHEDIR=C:\Users\admin\.matplotlib
+2023-10-31 09:44:00,219 - DEBUG - Using fontManager instance from C:\Users\admin\.matplotlib\fontlist-v330.json
+2023-10-31 09:46:50,773 - DEBUG - matplotlib data path: C:\Users\admin\AppData\Local\Programs\Python\Python311\Lib\site-packages\matplotlib\mpl-data
+2023-10-31 09:46:50,777 - DEBUG - CONFIGDIR=C:\Users\admin\.matplotlib
+2023-10-31 09:46:50,778 - DEBUG - interactive is False
+2023-10-31 09:46:50,778 - DEBUG - platform is win32
+2023-10-31 09:46:50,826 - DEBUG - CACHEDIR=C:\Users\admin\.matplotlib
+2023-10-31 09:46:50,829 - DEBUG - Using fontManager instance from C:\Users\admin\.matplotlib\fontlist-v330.json
+2023-10-31 09:46:52,492 - DEBUG - Loaded backend agg version v2.2.
+2023-10-31 09:47:14,310 - DEBUG - matplotlib data path: C:\Users\admin\AppData\Local\Programs\Python\Python311\Lib\site-packages\matplotlib\mpl-data
+2023-10-31 09:47:14,313 - DEBUG - CONFIGDIR=C:\Users\admin\.matplotlib
+2023-10-31 09:47:14,314 - DEBUG - interactive is False
+2023-10-31 09:47:14,314 - DEBUG - platform is win32
+2023-10-31 09:47:14,366 - DEBUG - CACHEDIR=C:\Users\admin\.matplotlib
+2023-10-31 09:47:14,369 - DEBUG - Using fontManager instance from C:\Users\admin\.matplotlib\fontlist-v330.json
+2023-10-31 09:47:16,504 - DEBUG - Loaded backend agg version v2.2.
+2023-10-31 09:47:20,779 - ERROR - __name__ == __main__ : Loi chuong trinh: [WinError 267] The directory name is invalid: 'E:\\AIPT\\detect_LPR\\myapp.log'
+2023-10-31 11:47:28,013 - DEBUG - matplotlib data path: C:\Users\admin\AppData\Local\Programs\Python\Python311\Lib\site-packages\matplotlib\mpl-data
+2023-10-31 11:47:28,018 - DEBUG - CONFIGDIR=C:\Users\admin\.matplotlib
+2023-10-31 11:47:28,019 - DEBUG - interactive is False
+2023-10-31 11:47:28,019 - DEBUG - platform is win32
+2023-10-31 11:47:28,073 - DEBUG - CACHEDIR=C:\Users\admin\.matplotlib
+2023-10-31 11:47:28,077 - DEBUG - Using fontManager instance from C:\Users\admin\.matplotlib\fontlist-v330.json
+2023-10-31 11:47:30,575 - DEBUG - Loaded backend agg version v2.2.
+2023-10-31 11:47:35,743 - ERROR - __name__ == __main__ : Loi chuong trinh: [WinError 267] The directory name is invalid: 'E:\\AIPT\\detect_LPR\\myapp.log'
